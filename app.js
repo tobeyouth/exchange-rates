@@ -2,22 +2,29 @@ const fs = require('fs')
 const path = require('path')
 const Koa = require('koa')
 const Router = require('koa-better-router')
-const releaseData = JSON.parse(fs.readFileSync(path.resolve('./release.json'), 'utf8'))
-
+const schedule = require('node-schedule')
+const openexchangeAppID = process.env.OPENEXCHANGE_APP_ID
 
 // init leancloud
 const AV = require('leanengine');
 AV.init({
-  appId: releaseData.leancloud.appId,
-  appKey: releaseData.leancloud.appKey,
-  masterKey: releaseData.leancloud.masterKey 
+  appId: process.env.LEANCLOUD_APP_ID,
+  appKey: process.env.LEANCLOUD_APP_KEY,
+  masterKey: process.env.LEANCLOUD_APP_MASTER_KEY 
 });
 
 // run schedule
 const syncSchedules = require('./schedules/sync_exchange_rates')
+const rule = new schedule.RecurrenceRule()
+rule.minute = 59
 
-//syncSchedules.syncCurrencies(releaseData.openexchange.appId)
-//syncSchedules.syncRates(releaseData.openexchange.appId)
+const syncCurrencies = schedule.scheduleJob(rule, () => {
+  syncSchedules.syncCurrencies(openexchangeAppID)
+})
+
+const syncRates = schedule.scheduleJob(rule, () => {
+  syncSchedules.syncRates(openexchangeAppID)
+})
 
 // run api
 const app = new Koa()
