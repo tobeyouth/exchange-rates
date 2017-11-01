@@ -16,13 +16,12 @@ AV.init({
 // run schedule
 const syncSchedules = require('./schedules/sync_exchange_rates')
 const rule = new schedule.RecurrenceRule()
-rule.minute = 59
 
-const syncCurrencies = schedule.scheduleJob(rule, () => {
+const syncCurrencies = schedule.scheduleJob('59 * * * *', () => {
   syncSchedules.syncCurrencies(openexchangeAppID)
 })
 
-const syncRates = schedule.scheduleJob(rule, () => {
+const syncRates = schedule.scheduleJob('59 * * * *', () => {
   syncSchedules.syncRates(openexchangeAppID)
 })
 
